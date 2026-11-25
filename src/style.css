@@ -55,3 +55,10 @@ footer { padding-bottom: 2.5rem; font-size: 0.78rem; color: var(--muted); border
 .landing { text-align: center; padding-top: 25vh; }
 .brand { display: inline-flex; align-items: center; gap: 0.6rem; }
 .mark { width: 1.6em; height: 1.6em; display: block; color: var(--fg); }
+.cover { margin: 0 0 2.4rem; }
+.cover img { width: 100%; height: auto; display: block; }
+.machine { border-left: 2px solid var(--rule); padding: 0.1rem 0 0.1rem 1rem; margin: 0 0 1.8rem; font-size: 0.85rem; color: var(--muted); }
+.machine a { color: var(--muted); }
+.index li.withthumb { display: flex; gap: 1.2rem; align-items: flex-start; }
+.index li.withthumb > div { flex: 1; min-width: 0; }
+.thumb img { width: 88px; height: 88px; object-fit: cover; display: block; }

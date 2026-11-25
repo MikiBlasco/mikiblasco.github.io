@@ -3,6 +3,9 @@ title: El velo
 slug: el-velo
 date: 2026-11-25
 summary: Ensayo sobre el muro que no está delante de los ojos, sino hecho de ellos.
+translation: the-veil
+image: el-velo-portada.jpg
+image_alt: Un guardián con una lanza ante una inmensa puerta de madera tallada en una cueva, iluminado por un haz de luz.
 ---
 
 ## I. Imaginemos

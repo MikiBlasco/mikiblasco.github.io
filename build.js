@@ -10,8 +10,8 @@ const base = site.basePath || '';
 const langs = ['es', 'en'];
 
 const ui = {
-  es: { home: 'Inicio', other: 'English', otherLang: 'en', published: 'Publicado', updated: 'Actualizado', empty: 'Aún no hay textos publicados.', back: '← Todos los textos', fingerprint: 'Huella SHA-256 del texto', author: 'Autor', example: 'Texto de ejemplo' },
-  en: { home: 'Home', other: 'Español', otherLang: 'es', published: 'Published', updated: 'Updated', empty: 'No texts published yet.', back: '← All texts', fingerprint: 'SHA-256 fingerprint of the text', author: 'Author', example: 'Example text' },
+  es: { home: 'Inicio', other: 'English', otherLang: 'en', published: 'Publicado', updated: 'Actualizado', empty: 'Aún no hay textos publicados.', back: '← Todos los textos', fingerprint: 'Huella SHA-256 del texto', author: 'Autor', example: 'Texto de ejemplo', auto: 'Traducción automática', machine: 'Traducción automática del original en español.', notOriginal: 'Este texto no fue escrito originalmente en este idioma.', original: 'Leer el original' },
+  en: { home: 'Home', other: 'Español', otherLang: 'es', published: 'Published', updated: 'Updated', empty: 'No texts published yet.', back: '← All texts', fingerprint: 'SHA-256 fingerprint of the text', author: 'Author', example: 'Example text', auto: 'Automatic translation', machine: 'Automatic translation of the original in Spanish.', notOriginal: 'This text was not originally written in English.', original: 'Read the original in Spanish' },
 };
 
 const siteName = (lang) => (lang === 'en' ? site.nameEn : site.name);
@@ -74,6 +74,7 @@ fs.rmSync(dist, { recursive: true, force: true });
 fs.mkdirSync(dist, { recursive: true });
 fs.copyFileSync(path.join(root, 'src/style.css'), path.join(dist, 'style.css'));
 fs.copyFileSync(path.join(root, 'src/favicon.svg'), path.join(dist, 'favicon.svg'));
+if (fs.existsSync(path.join(root, 'images'))) fs.cpSync(path.join(root, 'images'), path.join(dist, 'images'), { recursive: true });
 const logo = fs.readFileSync(path.join(root, 'src/logo.svg'), 'utf8').trim().replace('<svg ', '<svg class="mark" aria-hidden="true" ');
 
 const archiveUrls = [];
@@ -104,12 +105,16 @@ for (const lang of activeLangs) {
     const html = marked.parse(e.body);
     const updated = e.updated ? ` · ${t.updated}: ${fmtDate(e.updated, lang)}` : '';
     const exampleNote = e.example === 'true' ? `<p class="note">${t.example}</p>` : '';
+    const machineNote = e.machine_translated === 'true'
+      ? `<p class="machine"><strong>${t.machine}</strong> ${t.notOriginal}${tr ? ` <a href="${base}/${otherLang}/${tr.slug}/" hreflang="${otherLang}">${t.original}</a>.` : ''}</p>`
+      : '';
+    const cover = e.image ? `<figure class="cover"><img src="${base}/images/${e.image}" alt="${esc(e.image_alt || '')}" width="1100" height="1100"></figure>\n` : '';
     const body = `<article>
 <p class="back"><a href="${base}/${lang}/">${t.back}</a></p>
-${exampleNote}
+${exampleNote}${machineNote}
 <h1>${esc(e.title)}</h1>
 <p class="meta">${esc(site.author)} · ${t.published}: ${fmtDate(e.date, lang)}${updated}</p>
-<div class="text">
+${cover}<div class="text">
 ${html}
 </div>
 <p class="fingerprint">${t.fingerprint}:<br><code>${e.hash}</code></p>
@@ -119,7 +124,11 @@ ${html}
   }
 
   const body = `<ul class="index">${essays[lang]
-    .map((e) => `<li><a href="${base}/${lang}/${e.slug}/">${esc(e.title)}</a><span class="date">${fmtDate(e.date, lang)}</span>${e.summary ? `<p>${esc(e.summary)}</p>` : ''}</li>`)
+    .map((e) => {
+      const thumb = e.image ? `<a class="thumb" href="${base}/${lang}/${e.slug}/" tabindex="-1" aria-hidden="true"><img src="${base}/images/${e.image.replace(/(\.\w+)$/, '-thumb$1')}" alt="" width="240" height="240" loading="lazy"></a>` : '';
+      const auto = e.machine_translated === 'true' ? ` · ${t.auto}` : '';
+      return `<li${thumb ? ' class="withthumb"' : ''}>${thumb}<div><a href="${base}/${lang}/${e.slug}/">${esc(e.title)}</a><span class="date">${fmtDate(e.date, lang)}${auto}</span>${e.summary ? `<p>${esc(e.summary)}</p>` : ''}</div></li>`;
+    })
     .join('\n')}</ul>`;
   write(`${lang}/index.html`, layout({ lang, title: siteName(lang), body, altHref: otherActive ? `${base}/${otherLang}/` : null }));
 }
