@@ -53,3 +53,5 @@ a:hover { text-decoration-color: var(--fg); }
 .fingerprint code { font-size: 0.72rem; word-break: break-all; }
 footer { padding-bottom: 2.5rem; font-size: 0.78rem; color: var(--muted); border-top: 1px solid var(--rule); padding-top: 1.2rem; }
 .landing { text-align: center; padding-top: 25vh; }
+.brand { display: inline-flex; align-items: center; gap: 0.6rem; }
+.mark { width: 1.6em; height: 1.6em; display: block; color: var(--fg); }

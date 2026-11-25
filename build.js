@@ -46,10 +46,11 @@ function layout({ lang, title, body, altHref, desc }) {
 <meta name="author" content="${esc(site.author)}">
 ${robots}
 <link rel="stylesheet" href="${base}/style.css">
+<link rel="icon" type="image/svg+xml" href="${base}/favicon.svg">
 </head>
 <body>
 <header class="top">
-  <a class="brand" href="${base}/${lang}/">${esc(siteName(lang))}</a>
+  <a class="brand" href="${base}/${lang}/">${esc(siteName(lang))}${logo}</a>
   <nav>${altHref ? `<a href="${altHref}" hreflang="${t.otherLang}" lang="${t.otherLang}">${t.other}</a>` : ''}</nav>
 </header>
 <main>
@@ -72,6 +73,8 @@ function write(rel, content) {
 fs.rmSync(dist, { recursive: true, force: true });
 fs.mkdirSync(dist, { recursive: true });
 fs.copyFileSync(path.join(root, 'src/style.css'), path.join(dist, 'style.css'));
+fs.copyFileSync(path.join(root, 'src/favicon.svg'), path.join(dist, 'favicon.svg'));
+const logo = fs.readFileSync(path.join(root, 'src/logo.svg'), 'utf8').trim().replace('<svg ', '<svg class="mark" aria-hidden="true" ');
 
 const archiveUrls = [];
 const essays = { es: [], en: [] };
@@ -127,6 +130,7 @@ write('index.html', `<!doctype html>
 <title>${esc(site.name)}</title>
 ${site.indexable ? '' : '<meta name="robots" content="noindex, nofollow">'}
 <link rel="stylesheet" href="${base}/style.css">
+<link rel="icon" type="image/svg+xml" href="${base}/favicon.svg">
 <script>var a=${JSON.stringify(activeLangs)},n=(navigator.language||"es").toLowerCase().slice(0,2);location.replace("${base}/"+(a.indexOf(n)>-1?n:a[0])+"/");</script>
 </head><body><main class="landing"><h1>${esc(site.name)}</h1><p>${activeLangs.map((l) => `<a href="${base}/${l}/">${l === 'en' ? 'English' : 'Español'}</a>`).join(' · ')}</p></main></body></html>
 `);
