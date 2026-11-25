@@ -50,7 +50,7 @@ ${robots}
 <body>
 <header class="top">
   <a class="brand" href="${base}/${lang}/">${esc(siteName(lang))}</a>
-  <nav><a href="${altHref}" hreflang="${t.otherLang}" lang="${t.otherLang}">${t.other}</a></nav>
+  <nav>${altHref ? `<a href="${altHref}" hreflang="${t.otherLang}" lang="${t.otherLang}">${t.other}</a>` : ''}</nav>
 </header>
 <main>
 ${body}
@@ -87,13 +87,17 @@ for (const lang of langs) {
   essays[lang].sort((a, b) => (b.date || '').localeCompare(a.date || ''));
 }
 
-for (const lang of langs) {
+// Un idioma solo existe en la web cuando tiene al menos un texto publicado.
+const activeLangs = langs.filter((l) => essays[l].length > 0);
+
+for (const lang of activeLangs) {
   const t = ui[lang];
   const otherLang = t.otherLang;
+  const otherActive = activeLangs.includes(otherLang);
 
   for (const e of essays[lang]) {
     const tr = e.translation && essays[otherLang].find((x) => x.slug === e.translation);
-    const altHref = tr ? `${base}/${otherLang}/${tr.slug}/` : `${base}/${otherLang}/`;
+    const altHref = tr ? `${base}/${otherLang}/${tr.slug}/` : otherActive ? `${base}/${otherLang}/` : null;
     const html = marked.parse(e.body);
     const updated = e.updated ? ` · ${t.updated}: ${fmtDate(e.updated, lang)}` : '';
     const exampleNote = e.example === 'true' ? `<p class="note">${t.example}</p>` : '';
@@ -111,13 +115,10 @@ ${html}
     if (e.example !== 'true') archiveUrls.push(`${site.siteUrl}/${lang}/${e.slug}/`);
   }
 
-  const list = essays[lang].length
-    ? `<ul class="index">${essays[lang]
-        .map((e) => `<li><a href="${base}/${lang}/${e.slug}/">${esc(e.title)}</a><span class="date">${fmtDate(e.date, lang)}</span>${e.summary ? `<p>${esc(e.summary)}</p>` : ''}</li>`)
-        .join('\n')}</ul>`
-    : `<p>${t.empty}</p>`;
-  const body = `<section class="intro"><h1>${esc(siteName(lang))}</h1><p>${esc(site.tagline[lang])}</p></section>\n${list}`;
-  write(`${lang}/index.html`, layout({ lang, title: siteName(lang), body, altHref: `${base}/${otherLang}/` }));
+  const body = `<ul class="index">${essays[lang]
+    .map((e) => `<li><a href="${base}/${lang}/${e.slug}/">${esc(e.title)}</a><span class="date">${fmtDate(e.date, lang)}</span>${e.summary ? `<p>${esc(e.summary)}</p>` : ''}</li>`)
+    .join('\n')}</ul>`;
+  write(`${lang}/index.html`, layout({ lang, title: siteName(lang), body, altHref: otherActive ? `${base}/${otherLang}/` : null }));
 }
 
 // Entrada: elige idioma según el navegador.
@@ -126,8 +127,8 @@ write('index.html', `<!doctype html>
 <title>${esc(site.name)}</title>
 ${site.indexable ? '' : '<meta name="robots" content="noindex, nofollow">'}
 <link rel="stylesheet" href="${base}/style.css">
-<script>location.replace("${base}/" + ((navigator.language||"es").toLowerCase().startsWith("en") ? "en" : "es") + "/");</script>
-</head><body><main class="landing"><h1>${esc(site.name)}</h1><p><a href="${base}/es/">Español</a> · <a href="${base}/en/">English</a></p></main></body></html>
+<script>var a=${JSON.stringify(activeLangs)},n=(navigator.language||"es").toLowerCase().slice(0,2);location.replace("${base}/"+(a.indexOf(n)>-1?n:a[0])+"/");</script>
+</head><body><main class="landing"><h1>${esc(site.name)}</h1><p>${activeLangs.map((l) => `<a href="${base}/${l}/">${l === 'en' ? 'English' : 'Español'}</a>`).join(' · ')}</p></main></body></html>
 `);
 
 // robots.txt: sin indexar y pidiendo a los rastreadores de IA que no usen el contenido.
