@@ -1,0 +1,16 @@
+{
+  "name": "Miquel Blasco Boix",
+  "nameEn": "Miquel Blasco Boix",
+  "author": "Miquel Blasco Boix",
+  "siteUrl": "https://mikiblasco.github.io",
+  "basePath": "",
+  "indexable": false,
+  "license": {
+    "es": "Todos los derechos reservados. Puedes compartir el enlace a esta página; no está permitido copiar, adaptar ni reutilizar el texto sin permiso del autor.",
+    "en": "All rights reserved. You may share the link to this page; copying, adapting or reusing the text without the author's permission is not allowed."
+  },
+  "tagline": {
+    "es": "Ensayos y textos.",
+    "en": "Essays and writings."
+  }
+}
